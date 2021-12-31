@@ -1,13 +1,13 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.10'
     id 'java'
+    id 'maven-publish'
 }
 
 group 'com.github.fgoncalves'
 version '0.1'
 
 repositories {
-    mavenCentral()
     mavenCentral()
 }
 
