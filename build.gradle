@@ -4,9 +4,6 @@ plugins {
     id 'maven-publish'
 }
 
-group 'com.github.fgoncalves'
-version '0.1'
-
 repositories {
     mavenCentral()
 }
@@ -27,4 +24,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                group = 'com.github.fgoncalves'
+                artifactId = 'graphql-client'
+                version = '0.1'
+            }
+        }
+    }
 }
