@@ -7,6 +7,7 @@ import com.github.fgoncalves.exceptions.MissingQueryException
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.moshi.rawType
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,6 +17,8 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.reflect.jvm.javaType
+import kotlin.reflect.jvm.kotlinFunction
 import com.github.fgoncalves.annotations.Query as QueryAnnotation
 
 
@@ -38,15 +41,19 @@ internal class RequestInvocationHandler(
                 method.invoke(this)
         }
 
-        val returnType = method.returnType
         val continuation = args?.lastOrNull()
         val call = buildCall(method, args)
 
         // For coroutines the last argument is a continuation
         return if (continuation is Continuation<*>) {
+            val kotlinFunction = requireNotNull(method.kotlinFunction) {
+                "Picked up a suspend function but there's no kotlinFunction for it."
+            }
+            val returnType = kotlinFunction.returnType.javaType.rawType
             invokeCoroutine(continuation, call, returnType)
             COROUTINE_SUSPENDED
         } else {
+            val returnType = method.returnType
             invokeSync(call, returnType)
         }
     }
@@ -54,7 +61,7 @@ internal class RequestInvocationHandler(
     private fun invokeCoroutine(
         continuation: Any?,
         call: Call,
-        returnType: Class<*>
+        returnType: Class<*>,
     ) {
         @Suppress("UNCHECKED_CAST")
         (continuation as Continuation<Any>).let {
