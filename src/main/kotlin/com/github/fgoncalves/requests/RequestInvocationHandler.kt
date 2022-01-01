@@ -139,8 +139,8 @@ internal class RequestInvocationHandler(
         } ?: throw MissingQueryException(method)
 
     internal data class Query(
-        @Json(name = "data")
-        val data: String,
+        @Json(name = "query")
+        val query: String,
         @Json(name = "variables")
         val variables: Map<String, Any>? = null,
     )
