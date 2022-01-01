@@ -4,6 +4,7 @@ import com.github.fgoncalves.adapters.ResponseAdapter
 import com.github.fgoncalves.annotations.Var
 import com.github.fgoncalves.exceptions.HttpException
 import com.github.fgoncalves.exceptions.MissingQueryException
+import com.google.common.reflect.TypeToken
 import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -49,7 +50,7 @@ internal class RequestInvocationHandler(
             val kotlinFunction = requireNotNull(method.kotlinFunction) {
                 "Picked up a suspend function but there's no kotlinFunction for it."
             }
-            val returnType = kotlinFunction.returnType.javaType.rawType
+            val returnType = TypeToken.of(kotlinFunction.returnType.javaType).rawType
             invokeCoroutine(continuation, call, returnType)
             COROUTINE_SUSPENDED
         } else {
